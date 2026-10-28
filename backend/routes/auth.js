@@ -47,11 +47,11 @@ router.post('/google', async (req, res) => {
     const token = issueJwtToken(googleUser);
 
     // 4. Set HttpOnly Cookie (cannot be inspected or read by browser scripts!)
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL);
     res.cookie('admin_session_token', token, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'lax',
+      sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-domain cookie delivery on Vercel
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -87,7 +87,12 @@ router.get('/me', requireAuth, (req, res) => {
  * Clears authentication session cookie
  */
 router.post('/logout', (req, res) => {
-  res.clearCookie('admin_session_token');
+  const isProduction = process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL);
+  res.clearCookie('admin_session_token', {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+  });
   return res.json({ success: true, message: 'Logged out successfully' });
 });
 

@@ -8,7 +8,8 @@
  * - All backend database connections and third-party storage credentials remain exclusively on the server.
  */
 
-const API_BASE = '/api';
+const envApiUrl = import.meta.env.VITE_API_URL;
+const API_BASE = envApiUrl ? `${envApiUrl.replace(/\/$/, '')}/api` : '/api';
 
 let inMemoryToken = null;
 

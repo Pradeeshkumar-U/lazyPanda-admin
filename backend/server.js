@@ -26,6 +26,8 @@ process.on('uncaughtException', (err) => {
 
 // Enable CORS with credentials for cookie-based JWT authentication
 const allowedOrigins = [
+  'https://lazypanda-admin.vercel.app',
+  'https://lazyPanda-admin.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000',
   'http://localhost:5000',
@@ -36,11 +38,15 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, or same-origin)
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) return callback(null, true);
+      const lowerOrigin = origin.toLowerCase();
+      if (
+        allowedOrigins.some(o => o.toLowerCase() === lowerOrigin) ||
+        lowerOrigin.includes('lazypanda-admin.vercel.app')
+      ) {
         return callback(null, true);
       }
-      return callback(null, true); // Permissive in development
+      return callback(null, true);
     },
     credentials: true,
   })
