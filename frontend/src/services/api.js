@@ -8,7 +8,9 @@
  * - All backend database connections and third-party storage credentials remain exclusively on the server.
  */
 
-const envApiUrl = import.meta.env.VITE_API_URL;
+const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const defaultBackendUrl = isLocal ? '' : 'https://lazypanda-admin-backend.vercel.app';
+const envApiUrl = import.meta.env.VITE_API_URL || defaultBackendUrl;
 const API_BASE = envApiUrl ? `${envApiUrl.replace(/\/$/, '')}/api` : '/api';
 
 let inMemoryToken = null;
