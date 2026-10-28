@@ -1,0 +1,26 @@
+{
+  "name": "fm-admin-portal",
+  "version": "1.0.0",
+  "description": "FM Radio Central Admin Portal - Fullstack Vite React & Express Serverless",
+  "main": "api/index.js",
+  "scripts": {
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "start": "node backend/server.js",
+    "dev:backend": "node --watch backend/server.js",
+    "dev:frontend": "npm --prefix frontend run dev"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.750.0",
+    "@supabase/supabase-js": "^2.49.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "google-auth-library": "^9.15.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.13.3",
+    "sharp": "^0.33.5",
+    "uuid": "^11.1.0"
+  }
+}
