@@ -10,17 +10,18 @@ export default function LoginScreen({ onLoginSuccess }) {
 
   // Automatically handle Supabase Google OAuth redirect on page load
   useEffect(() => {
-    const handleAuthRedirect = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.access_token) {
-          setLoading(true);
-          setLoadingMsg(`Verifying authorization for ${session.user?.email || 'account'}...`);
+    let isHandled = false;
 
-          const data = await api.googleLogin({ supabaseToken: session.access_token });
-          setAuthToken(data.token);
-          onLoginSuccess(data.user);
-        }
+    const verifySession = async (session) => {
+      if (!session?.access_token || isHandled) return;
+      isHandled = true;
+      setLoading(true);
+      setLoadingMsg(`Verifying authorization for ${session.user?.email || 'account'}...`);
+
+      try {
+        const data = await api.googleLogin({ supabaseToken: session.access_token });
+        setAuthToken(data.token);
+        onLoginSuccess(data.user);
       } catch (err) {
         console.error('OAuth exchange error:', err);
         setError(
@@ -34,7 +35,21 @@ export default function LoginScreen({ onLoginSuccess }) {
       }
     };
 
-    handleAuthRedirect();
+    // 1. Check existing session on load
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) verifySession(session);
+    });
+
+    // 2. Listen for SIGNED_IN event (triggered upon return from OAuth redirect)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        verifySession(session);
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, [onLoginSuccess]);
 
   // Supabase Google Login Trigger
